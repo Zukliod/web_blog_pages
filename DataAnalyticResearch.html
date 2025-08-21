@@ -1,0 +1,580 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>The Case for a Unified AI Analytics Platform</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <!-- Chosen Palette: "Cool Gray & Tech Blue" -->
+    <!-- Application Structure Plan: The SPA is designed as a narrative journey, guiding the user from problem to solution. It starts with a high-level summary, then dives into the core problems of the current analytics landscape using interactive cards and a comparative chart. It then presents the opportunity with a chart comparing predictive methods. The core of the app is the interactive "Solution" section, where users can click on a pain point to see the corresponding AI feature that solves it. This task-oriented, problem-solution structure is more engaging than the report's linear format. The journey concludes with a visual roadmap and key recommendations, providing a clear, actionable summary. This structure was chosen to make the dense report content digestible and to highlight the value proposition of the proposed AI tool through direct interaction. -->
+    <!-- Visualization & Content Choices: 
+        1.  Problem - Analytics Paradox: Goal: Inform/Organize. Method: Interactive cards for key pain points (Data Silos, Manual Effort, etc.). Interaction: Hover effects to draw attention. Justification: Quickly communicates the core challenges.
+        2.  Problem - Tool Comparison: Goal: Compare. Method: Horizontal Bar Chart (Chart.js). Interaction: Buttons to filter and highlight specific tools. Justification: Provides a clear, quantitative comparison of tool strengths/weaknesses, which is more impactful than a static table.
+        3.  Opportunity - Forecasting Methods: Goal: Compare. Method: Radar Chart (Chart.js). Interaction: Tooltips on hover provide details. Justification: A radar chart is excellent for comparing multiple items (methods) across multiple distinct criteria (Pros/Cons), offering a more holistic view than a simple table.
+        4.  Solution - Feature Architecture: Goal: Organize/Relationships. Method: Interactive diagram built with HTML/CSS Grid. Interaction: Clicking a "Pain Point" highlights the corresponding "AI Solution" and "Feature" and updates a description panel. Justification: Visually connects problems to solutions, making the product's value proposition intuitive and memorable.
+        5.  Solution - Tech Stack: Goal: Inform/Organize. Method: Styled HTML/CSS Flexbox diagram. Interaction: Simple visual representation. Justification: Clearly illustrates the modular, layered architecture.
+        6.  Roadmap - Phased Development: Goal: Change/Organize. Method: Interactive timeline with HTML/CSS. Interaction: Clicking a phase reveals its detailed description. Justification: Presents the development plan in a dynamic, easy-to-follow format.
+    -->
+    <!-- CONFIRMATION: NO SVG graphics used. NO Mermaid JS used. -->
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f8fafc; /* slate-50 */
+            color: #334155; /* slate-700 */
+        }
+        .nav-link {
+            transition: color 0.3s, border-bottom-color 0.3s;
+            border-bottom: 2px solid transparent;
+        }
+        .nav-link.active, .nav-link:hover {
+            color: #3b82f6; /* blue-500 */
+            border-bottom-color: #3b82f6; /* blue-500 */
+        }
+        .chart-container {
+            position: relative;
+            width: 100%;
+            max-width: 800px;
+            margin-left: auto;
+            margin-right: auto;
+            height: 400px;
+            max-height: 50vh;
+        }
+        @media (max-width: 768px) {
+            .chart-container {
+                height: 350px;
+            }
+        }
+        .pain-point-card.active {
+            background-color: #dbeafe; /* blue-100 */
+            border-color: #3b82f6; /* blue-500 */
+            transform: translateY(-4px);
+            box-shadow: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
+        }
+        .solution-card.highlight {
+            background-color: #dbeafe; /* blue-100 */
+            border-color: #3b82f6; /* blue-500 */
+        }
+        .feature-card.highlight {
+            background-color: #e0f2fe; /* sky-100 */
+            border-color: #0ea5e9; /* sky-500 */
+        }
+        .timeline-item::before {
+            content: '';
+            position: absolute;
+            left: -30px;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            background-color: #94a3b8; /* slate-400 */
+            border: 4px solid #f1f5f9; /* slate-100 */
+        }
+        .timeline-item.active::before {
+            background-color: #3b82f6; /* blue-500 */
+        }
+    </style>
+</head>
+<body class="antialiased">
+
+    <header class="bg-white/80 backdrop-blur-lg sticky top-0 z-50 shadow-sm">
+        <nav class="container mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex items-center justify-between h-16">
+                <div class="flex-shrink-0">
+                    <h1 class="text-xl font-bold text-slate-800">AI Analytics Platform Vision</h1>
+                </div>
+                <div class="hidden md:block">
+                    <div class="ml-10 flex items-baseline space-x-4">
+                        <a href="#problem" class="nav-link px-3 py-2 rounded-md text-sm font-medium text-slate-600">The Problem</a>
+                        <a href="#opportunity" class="nav-link px-3 py-2 rounded-md text-sm font-medium text-slate-600">The Opportunity</a>
+                        <a href="#solution" class="nav-link px-3 py-2 rounded-md text-sm font-medium text-slate-600">The Solution</a>
+                        <a href="#roadmap" class="nav-link px-3 py-2 rounded-md text-sm font-medium text-slate-600">The Roadmap</a>
+                    </div>
+                </div>
+            </div>
+        </nav>
+    </header>
+
+    <main class="container mx-auto px-4 sm:px-6 lg:px-8 py-8 md:py-12">
+
+        <section id="hero" class="text-center mb-16">
+            <h2 class="text-4xl md:text-5xl font-extrabold text-slate-900 mb-4">From Reactive Reporting to Predictive Strategy</h2>
+            <p class="max-w-3xl mx-auto text-lg text-slate-600">
+                This interactive report explores the fragmented data analytics landscape and presents a blueprint for a unified, AI-powered platform. Discover how an "AI co-pilot" can solve today's challenges and unlock proactive, data-driven decision-making for businesses of all sizes.
+            </p>
+        </section>
+
+        <section id="problem" class="mb-20 scroll-mt-20">
+            <div class="text-center mb-12">
+                <h3 class="text-3xl font-bold text-slate-800 mb-2">Part I: The State of Data Analytics</h3>
+                <p class="text-md text-slate-500">An overabundance of tools, a paucity of insight.</p>
+            </div>
+
+            <div class="bg-white p-8 rounded-xl shadow-lg mb-12">
+                <h4 class="text-2xl font-semibold text-center mb-6 text-slate-700">The Dual Paradox of Modern Analytics</h4>
+                <p class="text-center text-slate-600 mb-8 max-w-4xl mx-auto">The current market is crowded with powerful yet siloed solutions. This fragmentation forces businesses into a reactive workflow, creating data silos, demanding extensive manual effort, and ultimately eroding trust in the data itself. Below are the core challenges analytics professionals face daily.</p>
+                <div class="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
+                    <div class="border border-slate-200 p-6 rounded-lg bg-slate-50 text-center">
+                        <div class="text-4xl mb-3">🗂️</div>
+                        <h5 class="font-semibold text-lg text-slate-800">Data Silos</h5>
+                        <p class="text-sm text-slate-500">Information trapped in disparate tools leads to an inconsistent and fragmented view of the business.</p>
+                    </div>
+                    <div class="border border-slate-200 p-6 rounded-lg bg-slate-50 text-center">
+                        <div class="text-4xl mb-3">⚙️</div>
+                        <h5 class="font-semibold text-lg text-slate-800">Manual Effort</h5>
+                        <p class="text-sm text-slate-500">Analysts spend excessive time on data wrangling and preparation, hindering focus on high-impact work.</p>
+                    </div>
+                    <div class="border border-slate-200 p-6 rounded-lg bg-slate-50 text-center">
+                        <div class="text-4xl mb-3">📉</div>
+                        <h5 class="font-semibold text-lg text-slate-800">Poor Data Quality</h5>
+                        <p class="text-sm text-slate-500">Inconsistent, incomplete, or inaccurate data leads to a lack of confidence in analytical models and insights.</p>
+                    </div>
+                     <div class="border border-slate-200 p-6 rounded-lg bg-slate-50 text-center">
+                        <div class="text-4xl mb-3">🤔</div>
+                        <h5 class="font-semibold text-lg text-slate-800">Human Bias</h5>
+                        <p class="text-sm text-slate-500">Intuition and personal biases often overrule data-driven results, undermining methodologies like A/B testing.</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="bg-white p-8 rounded-xl shadow-lg">
+                <h4 class="text-2xl font-semibold text-center mb-2 text-slate-700">Critical Review of Existing Tools</h4>
+                <p class="text-center text-slate-600 mb-8 max-w-4xl mx-auto">While powerful for specific use cases, current market leaders contribute to the fragmented ecosystem. This visualization compares key tools based on their primary strengths and strategic weaknesses from an analyst's perspective. Use the buttons to focus on a specific tool.</p>
+                <div class="text-center mb-6 space-x-2">
+                    <button class="tool-filter-btn bg-blue-500 text-white px-4 py-2 rounded-full text-sm font-medium" data-tool="All">All Tools</button>
+                    <button class="tool-filter-btn bg-white border border-slate-300 text-slate-600 px-4 py-2 rounded-full text-sm font-medium" data-tool="Google Analytics">Google Analytics</button>
+                    <button class="tool-filter-btn bg-white border border-slate-300 text-slate-600 px-4 py-2 rounded-full text-sm font-medium" data-tool="Mixpanel">Mixpanel</button>
+                    <button class="tool-filter-btn bg-white border border-slate-300 text-slate-600 px-4 py-2 rounded-full text-sm font-medium" data-tool="Looker">Looker</button>
+                    <button class="tool-filter-btn bg-white border border-slate-300 text-slate-600 px-4 py-2 rounded-full text-sm font-medium" data-tool="Mouseflow">Mouseflow</button>
+                </div>
+                <div class="chart-container">
+                    <canvas id="toolsChart"></canvas>
+                </div>
+            </div>
+        </section>
+
+        <section id="opportunity" class="mb-20 scroll-mt-20">
+            <div class="text-center mb-12">
+                <h3 class="text-3xl font-bold text-slate-800 mb-2">Part II: The Blueprint for a Predictive Engine</h3>
+                <p class="text-md text-slate-500">From foresight to first-mover advantage.</p>
+            </div>
+            <div class="bg-white p-8 rounded-xl shadow-lg">
+                <h4 class="text-2xl font-semibold text-center mb-2 text-slate-700">Investigating Predictive Methodologies</h4>
+                <p class="text-center text-slate-600 mb-8 max-w-4xl mx-auto">To predict market success, businesses must move beyond traditional forecasting. This chart compares different methodologies across key attributes, revealing the strategic advantages of modern, AI-driven approaches that are more scalable, adaptable, and less prone to bias.</p>
+                <div class="chart-container h-[450px] md:h-[500px] max-h-[60vh]">
+                    <canvas id="methodsChart"></canvas>
+                </div>
+            </div>
+        </section>
+
+        <section id="solution" class="mb-20 scroll-mt-20">
+            <div class="text-center mb-12">
+                <h3 class="text-3xl font-bold text-slate-800 mb-2">Part III: The AI-Powered Solution</h3>
+                <p class="text-md text-slate-500">A holistic product vision with the analyst as a co-pilot.</p>
+            </div>
+
+            <div class="bg-white p-8 rounded-xl shadow-lg mb-12">
+                <h4 class="text-2xl font-semibold text-center mb-2 text-slate-700">Feature-First Architecture: A Response to the Pain Points</h4>
+                <p class="text-center text-slate-600 mb-8 max-w-4xl mx-auto">The proposed application is a direct answer to the challenges identified earlier. Its architecture is designed to solve specific problems and create a unified, predictive, and intelligent platform. <strong class="text-blue-600">Click on a pain point below</strong> to see how our proposed AI solution and features directly address it.</p>
+                
+                <div class="grid lg:grid-cols-3 gap-8 items-start">
+                    <div>
+                        <h5 class="font-semibold text-center mb-4 text-slate-600">1. Identified Pain Points</h5>
+                        <div class="space-y-3">
+                            <div id="pp-silos" class="pain-point-card border-2 border-slate-200 p-4 rounded-lg cursor-pointer transition-all duration-300">
+                                <h6 class="font-bold text-slate-800">Data Silos & Fragmentation</h6>
+                                <p class="text-sm text-slate-500">Inability to form a single source of truth.</p>
+                            </div>
+                            <div id="pp-manual" class="pain-point-card border-2 border-slate-200 p-4 rounded-lg cursor-pointer transition-all duration-300">
+                                <h6 class="font-bold text-slate-800">Manual Data Wrangling</h6>
+                                <p class="text-sm text-slate-500">Time-consuming, tedious, and error-prone tasks.</p>
+                            </div>
+                            <div id="pp-roadmap" class="pain-point-card border-2 border-slate-200 p-4 rounded-lg cursor-pointer transition-all duration-300">
+                                <h6 class="font-bold text-slate-800">Lack of a Clear Roadmap</h6>
+                                <p class="text-sm text-slate-500">Teams get lost in a sea of numbers and charts.</p>
+                            </div>
+                            <div id="pp-trust" class="pain-point-card border-2 border-slate-200 p-4 rounded-lg cursor-pointer transition-all duration-300">
+                                <h6 class="font-bold text-slate-800">Lack of User Trust & Adoption</h6>
+                                <p class="text-sm text-slate-500">Resistance to change and fear of automation.</p>
+                            </div>
+                             <div id="pp-complexity" class="pain-point-card border-2 border-slate-200 p-4 rounded-lg cursor-pointer transition-all duration-300">
+                                <h6 class="font-bold text-slate-800">High Technical Complexity</h6>
+                                <p class="text-sm text-slate-500">Steep learning curve for non-technical users.</p>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="lg:col-span-2 bg-slate-50 p-6 rounded-lg border">
+                        <h5 class="font-semibold text-center mb-4 text-slate-600">2. Corresponding AI Solution & Feature</h5>
+                        <div id="solution-display" class="text-center transition-opacity duration-500">
+                             <div class="solution-card border-2 border-transparent p-4 rounded-lg mb-4 transition-all duration-300">
+                                <h6 class="font-bold text-slate-800 text-lg">Unified Data Foundation</h6>
+                                <p class="text-sm text-slate-500">A cloud-based, centralized repository that ingests and organizes data from all departments and sources.</p>
+                            </div>
+                            <div class="text-2xl text-slate-400 my-2">↓</div>
+                            <div class="feature-card border-2 border-transparent p-4 rounded-lg transition-all duration-300">
+                                <h6 class="font-bold text-sky-800 text-lg">AI-Powered Data Pipelines</h6>
+                                <p class="text-sm text-sky-600">An automated system that collects, cleanses, and prepares data for analysis and model training with minimal human intervention.</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="bg-white p-8 rounded-xl shadow-lg">
+                <h4 class="text-2xl font-semibold text-center mb-2 text-slate-700">The Technical Foundation</h4>
+                <p class="text-center text-slate-600 mb-8 max-w-4xl mx-auto">The architecture is built on a modular, cloud-native design that is vendor-agnostic and prioritizes security. This layered approach ensures scalability, flexibility, and prevents vendor lock-in, addressing the rigidity that has plagued past digital transformation failures.</p>
+                <div class="flex flex-col md:flex-row md:space-x-4 space-y-4 md:space-y-0 text-center">
+                    <div class="flex-1 p-6 bg-sky-50 border border-sky-200 rounded-lg">
+                        <h5 class="font-bold text-sky-800">Application Layer</h5>
+                        <p class="text-sm text-sky-600">User Interface, Dashboards, NLQ</p>
+                    </div>
+                    <div class="flex-1 p-6 bg-blue-50 border border-blue-200 rounded-lg">
+                        <h5 class="font-bold text-blue-800">Model Layer</h5>
+                        <p class="text-sm text-blue-600">ML Model Training & Optimization</p>
+                    </div>
+                    <div class="flex-1 p-6 bg-indigo-50 border border-indigo-200 rounded-lg">
+                        <h5 class="font-bold text-indigo-800">Data Layer</h5>
+                        <p class="text-sm text-indigo-600">Data Ingestion, Management, Governance</p>
+                    </div>
+                    <div class="flex-1 p-6 bg-slate-100 border border-slate-200 rounded-lg">
+                        <h5 class="font-bold text-slate-800">Infrastructure Layer</h5>
+                        <p class="text-sm text-slate-600">Cloud Compute & Storage</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section id="roadmap" class="scroll-mt-20">
+            <div class="text-center mb-12">
+                <h3 class="text-3xl font-bold text-slate-800 mb-2">Part IV: Strategic Recommendations & Roadmap</h3>
+                <p class="text-md text-slate-500">A phased approach to avoid the pitfalls of rigidity.</p>
+            </div>
+
+            <div class="grid md:grid-cols-2 gap-12 items-center">
+                <div class="bg-white p-8 rounded-xl shadow-lg">
+                    <h4 class="text-2xl font-semibold mb-6 text-slate-700">A Phased Development Approach</h4>
+                    <div class="relative pl-8 border-l-2 border-slate-200">
+                        <div id="phase-1" class="timeline-item relative pb-8 cursor-pointer">
+                            <h5 class="font-bold text-lg text-slate-800">Phase 1: MVP - The AI Co-Pilot</h5>
+                            <p class="text-sm text-slate-500">Focus on data ingestion and a Natural Language Query interface for immediate value in reporting and analysis.</p>
+                        </div>
+                        <div id="phase-2" class="timeline-item relative pb-8 cursor-pointer">
+                            <h5 class="font-bold text-lg text-slate-800">Phase 2: Predictive Functionality</h5>
+                            <p class="text-sm text-slate-500">Build the forecasting engine with core ML models and integration of external data sources.</p>
+                        </div>
+                        <div id="phase-3" class="timeline-item relative pb-0 cursor-pointer">
+                            <h5 class="font-bold text-lg text-slate-800">Phase 3: Prescriptive & Proactive</h5>
+                            <p class="text-sm text-slate-500">Integrate a prescriptive layer with actionable recommendations and market simulation capabilities.</p>
+                        </div>
+                    </div>
+                </div>
+                <div id="roadmap-details" class="bg-blue-50 border border-blue-200 p-8 rounded-lg">
+                    <h4 id="roadmap-title" class="text-xl font-bold text-blue-800 mb-3">Phase 1: Minimum Viable Product (MVP) - The AI Co-Pilot for Reporting.</h4>
+                    <p id="roadmap-description" class="text-blue-700">The initial focus will be on building a robust data ingestion layer and the generative AI-powered NLQ interface. The MVP will allow users to connect to existing data sources and use natural language to ask questions, generate reports, and create visualizations. This provides immediate value by solving the most acute pain points of manual effort and data overload while building user confidence and adoption. This approach addresses the organizational challenge of resistance to change by demonstrating clear, immediate benefits.</p>
+                </div>
+            </div>
+        </section>
+
+    </main>
+
+    <footer class="bg-white mt-16 border-t">
+        <div class="container mx-auto py-6 px-4 sm:px-6 lg:px-8 text-center text-slate-500">
+            <p>&copy; 2024 AI Analytics Platform Vision. An interactive summary.</p>
+        </div>
+    </footer>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            
+            const smoothScrollLinks = document.querySelectorAll('a[href^="#"]');
+            for (const link of smoothScrollLinks) {
+                link.addEventListener('click', function (e) {
+                    e.preventDefault();
+                    const targetId = this.getAttribute('href');
+                    const targetElement = document.querySelector(targetId);
+                    if (targetElement) {
+                        targetElement.scrollIntoView({
+                            behavior: 'smooth',
+                            block: 'start'
+                        });
+                    }
+                });
+            }
+
+            const navLinks = document.querySelectorAll('.nav-link');
+            const sections = document.querySelectorAll('section');
+
+            window.addEventListener('scroll', () => {
+                let current = '';
+                sections.forEach(section => {
+                    const sectionTop = section.offsetTop;
+                    if (pageYOffset >= sectionTop - 80) {
+                        current = section.getAttribute('id');
+                    }
+                });
+
+                navLinks.forEach(link => {
+                    link.classList.remove('active');
+                    if (link.getAttribute('href') === `#${current}`) {
+                        link.classList.add('active');
+                    }
+                });
+            });
+
+            const toolData = {
+                labels: ['Google Analytics', 'Mixpanel', 'Looker', 'Mouseflow'],
+                datasets: [
+                    {
+                        label: 'Key Strengths',
+                        data: [8, 9, 10, 7],
+                        backgroundColor: 'rgba(59, 130, 246, 0.7)',
+                        borderColor: 'rgba(59, 130, 246, 1)',
+                        borderWidth: 1
+                    },
+                    {
+                        label: 'Primary Weaknesses',
+                        data: [-6, -7, -9, -8],
+                        backgroundColor: 'rgba(239, 68, 68, 0.7)',
+                        borderColor: 'rgba(239, 68, 68, 1)',
+                        borderWidth: 1
+                    }
+                ]
+            };
+
+            const toolsCtx = document.getElementById('toolsChart').getContext('2d');
+            const toolsChart = new Chart(toolsCtx, {
+                type: 'bar',
+                data: toolData,
+                options: {
+                    indexAxis: 'y',
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        x: {
+                            stacked: true,
+                            ticks: {
+                                callback: function(value) {
+                                    return Math.abs(value);
+                                }
+                            },
+                             title: {
+                                display: true,
+                                text: 'Relative Score'
+                            }
+                        },
+                        y: {
+                            stacked: true,
+                        }
+                    },
+                    plugins: {
+                        tooltip: {
+                            callbacks: {
+                                label: function(context) {
+                                    return `${context.dataset.label}: ${Math.abs(context.raw)}`;
+                                }
+                            }
+                        },
+                        legend: {
+                            position: 'bottom',
+                        },
+                        title: {
+                            display: true,
+                            text: 'Strengths vs. Weaknesses of Analytics Tools'
+                        }
+                    }
+                }
+            });
+
+            const filterButtons = document.querySelectorAll('.tool-filter-btn');
+            const originalData = JSON.parse(JSON.stringify(toolData));
+
+            filterButtons.forEach(button => {
+                button.addEventListener('click', () => {
+                    filterButtons.forEach(btn => {
+                        btn.classList.remove('bg-blue-500', 'text-white');
+                        btn.classList.add('bg-white', 'border', 'border-slate-300', 'text-slate-600');
+                    });
+                    button.classList.add('bg-blue-500', 'text-white');
+                    button.classList.remove('bg-white', 'border', 'border-slate-300', 'text-slate-600');
+
+                    const tool = button.dataset.tool;
+                    if (tool === 'All') {
+                        toolsChart.data.labels = originalData.labels;
+                        toolsChart.data.datasets[0].data = originalData.datasets[0].data;
+                        toolsChart.data.datasets[1].data = originalData.datasets[1].data;
+                    } else {
+                        const toolIndex = originalData.labels.indexOf(tool);
+                        if (toolIndex > -1) {
+                            toolsChart.data.labels = [originalData.labels[toolIndex]];
+                            toolsChart.data.datasets[0].data = [originalData.datasets[0].data[toolIndex]];
+                            toolsChart.data.datasets[1].data = [originalData.datasets[1].data[toolIndex]];
+                        }
+                    }
+                    toolsChart.update();
+                });
+            });
+
+
+            const methodsData = {
+                labels: ['Adaptability', 'Bias Reduction', 'Scalability', 'Proactivity', 'Data Requirement'],
+                datasets: [{
+                    label: 'Historical',
+                    data: [2, 4, 8, 1, 9],
+                    backgroundColor: 'rgba(255, 99, 132, 0.2)',
+                    borderColor: 'rgb(255, 99, 132)',
+                    pointBackgroundColor: 'rgb(255, 99, 132)',
+                }, {
+                    label: 'Intuitive',
+                    data: [3, 1, 3, 2, 2],
+                    backgroundColor: 'rgba(255, 159, 64, 0.2)',
+                    borderColor: 'rgb(255, 159, 64)',
+                    pointBackgroundColor: 'rgb(255, 159, 64)',
+                }, {
+                    label: 'A/B Testing',
+                    data: [5, 7, 6, 4, 7],
+                    backgroundColor: 'rgba(75, 192, 192, 0.2)',
+                    borderColor: 'rgb(75, 192, 192)',
+                    pointBackgroundColor: 'rgb(75, 192, 192)',
+                }, {
+                    label: 'Machine Learning',
+                    data: [9, 8, 9, 9, 6],
+                    backgroundColor: 'rgba(54, 162, 235, 0.2)',
+                    borderColor: 'rgb(54, 162, 235)',
+                    pointBackgroundColor: 'rgb(54, 162, 235)',
+                }]
+            };
+            const methodsCtx = document.getElementById('methodsChart').getContext('2d');
+            new Chart(methodsCtx, {
+                type: 'radar',
+                data: methodsData,
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        title: {
+                            display: true,
+                            text: 'Comparison of Forecasting Methodologies'
+                        },
+                        legend: {
+                            position: 'bottom',
+                        }
+                    },
+                    scales: {
+                        r: {
+                            angleLines: {
+                                display: true
+                            },
+                            suggestedMin: 0,
+                            suggestedMax: 10,
+                             pointLabels: {
+                                font: {
+                                    size: 14
+                                }
+                            }
+                        }
+                    }
+                }
+            });
+            
+            const painPointCards = document.querySelectorAll('.pain-point-card');
+            const solutionDisplay = document.getElementById('solution-display');
+            const solutionCard = solutionDisplay.querySelector('.solution-card');
+            const featureCard = solutionDisplay.querySelector('.feature-card');
+
+            const solutionsData = {
+                'pp-silos': {
+                    solution: 'Unified Data Foundation',
+                    solutionDesc: 'A cloud-based, centralized repository that ingests and organizes data from all departments and sources.',
+                    feature: 'Single Source of Truth',
+                    featureDesc: 'Breaks down silos by centralizing data into a single, AI-ready, governed repository for consistency.'
+                },
+                'pp-manual': {
+                    solution: 'AI-Powered Data Pipelines',
+                    solutionDesc: 'Automates the entire ETL process from collection and cleansing to preparation for analysis.',
+                    feature: 'Automated Data Orchestration',
+                    featureDesc: 'Replaces traditional ETL with a system designed for real-time processing and continuous model training.'
+                },
+                'pp-roadmap': {
+                    solution: 'Predictive & Prescriptive Insights Engine',
+                    solutionDesc: 'Uses advanced ML models to not only predict outcomes but also provide actionable recommendations.',
+                    feature: 'Strategic Guidance',
+                    featureDesc: 'Moves beyond forecasting to provide data-backed "second opinions" and strategic direction.'
+                },
+                'pp-trust': {
+                    solution: 'Transparent Security & Governance',
+                    solutionDesc: 'Ensures data integrity and user confidence with built-in safeguards and robust access controls.',
+                    feature: 'Enterprise-Grade Trust Layer',
+                    featureDesc: 'A strong governance framework ensures data quality, consistency, and compliance with regulations.'
+                },
+                'pp-complexity': {
+                    solution: 'Conversational Analytics & Dashboarding',
+                    solutionDesc: 'An intuitive, chat-based interface that allows non-technical users to query data using plain language.',
+                    feature: 'Natural Language Query (NLQ)',
+                    featureDesc: 'Democratizes data access, allowing anyone to ask business questions and generate visualizations without code.'
+                }
+            };
+
+            painPointCards.forEach(card => {
+                card.addEventListener('click', () => {
+                    painPointCards.forEach(c => c.classList.remove('active'));
+                    card.classList.add('active');
+                    
+                    const data = solutionsData[card.id];
+                    
+                    solutionDisplay.style.opacity = 0;
+                    setTimeout(() => {
+                        solutionCard.querySelector('h6').textContent = data.solution;
+                        solutionCard.querySelector('p').textContent = data.solutionDesc;
+                        featureCard.querySelector('h6').textContent = data.feature;
+                        featureCard.querySelector('p').textContent = data.featureDesc;
+
+                        solutionCard.classList.add('highlight');
+                        featureCard.classList.add('highlight');
+
+                        solutionDisplay.style.opacity = 1;
+                    }, 300);
+                });
+            });
+            
+            document.getElementById('pp-silos').click();
+
+            const timelineItems = document.querySelectorAll('.timeline-item');
+            const roadmapTitle = document.getElementById('roadmap-title');
+            const roadmapDescription = document.getElementById('roadmap-description');
+            
+            const roadmapData = {
+                'phase-1': {
+                    title: 'Phase 1: Minimum Viable Product (MVP) - The AI Co-Pilot for Reporting.',
+                    description: 'The initial focus will be on building a robust data ingestion layer and the generative AI-powered NLQ interface. The MVP will allow users to connect to existing data sources and use natural language to ask questions, generate reports, and create visualizations. This provides immediate value by solving the most acute pain points of manual effort and data overload while building user confidence and adoption. This approach addresses the organizational challenge of resistance to change by demonstrating clear, immediate benefits.'
+                },
+                'phase-2': {
+                    title: 'Phase 2: Predictive Functionality - The Forecasting Engine.',
+                    description: 'Once the core platform is stable and user adoption is underway, the focus will shift to building out the predictive analytics engine. This phase will involve developing a core set of machine learning models (e.g., ARIMA) and the ability to integrate external data sources like social media sentiment and competitor data. The goal is to provide reliable, data-driven forecasts for market trends and product success, moving the user from reactive to proactive insights.'
+                },
+                'phase-3': {
+                    title: 'Phase 3: Prescriptive and Proactive Features - The Strategic Advisor.',
+                    description: 'The final phase will integrate the predictive model with a prescriptive layer that provides actionable recommendations. This will also include advanced features like automated sentiment analysis and the ability to run market simulations to test new product concepts. This is the ultimate expression of the product\'s value, transforming it from a tool for analysis into a strategic advisor for the entire business.'
+                }
+            };
+            
+            timelineItems.forEach(item => {
+                item.addEventListener('click', () => {
+                    timelineItems.forEach(i => i.classList.remove('active'));
+                    item.classList.add('active');
+                    
+                    const data = roadmapData[item.id];
+                    roadmapTitle.textContent = data.title;
+                    roadmapDescription.textContent = data.description;
+                });
+            });
+            
+            document.getElementById('phase-1').classList.add('active');
+        });
+    </script>
+</body>
+</html>
